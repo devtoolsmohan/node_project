@@ -2,19 +2,18 @@ import express from 'express';
 import userRoutes from './routes/userRoutes';
 import postRoutes from "./routes/postRoutes";
 import bodyParser from 'body-parser';
-
+import cors from 'cors';
 
 const app = express();
-const port = 3000;
+app.use(cors());
+const port = 5000;
 
-// app.get('/', (req, res) => {
-//   res.send('Hello World!');
-// });
 app.use(bodyParser.json());
-app.use('/', userRoutes);
-app.use('/posts', postRoutes);
+app.use('/api/', userRoutes);
+app.use('/api/posts', postRoutes);
 
 app.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);
 });
+
 

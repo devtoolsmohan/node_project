@@ -22,22 +22,17 @@ export async function registerUser(req: Request, res: Response) {
 
 export async function loginUser(req: Request, res: Response) {
     const { email, password } = req.body;
-
     try {
         const user: User | null = await db.oneOrNone('SELECT * FROM users WHERE email = $1', [email]);
 
         if (!user) {
             return res.status(401).json({ error: 'User not found.' });
         }
-
         const isPasswordValid = await bcrypt.compare(password, user.password);
-
         if (!isPasswordValid) {
             return res.status(401).json({ error: 'Incorrect password.' });
         }
-
         const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '5d' });
-
         res.status(200).json({ token });
     } catch (error) {
         console.error(error);
@@ -60,7 +55,6 @@ export async function currentUser(req: Request, res: Response) {
     try {
         const users = await db.one('SELECT * FROM users ');
         const existingUser: User | null = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [userId]);
-
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });

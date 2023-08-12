@@ -5,8 +5,7 @@ import bcrypt from "bcryptjs";
 import {User} from "../models/User";
 
 export async function getAllposts(req: Request, res: Response) {
-    const userId = req.params.userId;
-
+    const userId = req.userId;
     try {
         const posts = await db.any('SELECT * FROM posts WHERE userid = $1', [userId]);
 
@@ -18,10 +17,12 @@ export async function getAllposts(req: Request, res: Response) {
 }
 
 export async function createPost(req: Request, res: Response) {
-    const { userid, name, description, date } = req.body;
+    const { name, description, date } = req.body;
+    const userId = req.userId;
+
     try {
         const newPost: User = await db.one('INSERT INTO posts (userid, name, description, date) VALUES ($1, $2, $3, $4) RETURNING *',
-            [userid, name, description, date]
+            [userId, name, description, date]
         );
         res.status(201).json(newPost);
     } catch (error) {
@@ -48,11 +49,11 @@ export async function getPost(req: Request, res: Response) {
 }
 export async function updatePost(req: Request, res: Response) {
     const postId = req.params.id;
-    const { userid, name, description, date } = req.body;
+    const { name, description, date } = req.body;
 
     try {
-        const updatedPost = await db.oneOrNone('UPDATE posts SET userid = $1, name = $2, description = $4, date = $5 WHERE id = $3 RETURNING *',
-            [userid, name, postId, description, date ]);
+        const updatedPost = await db.oneOrNone('UPDATE posts SET name = $1, description = $3, date = $4 WHERE id = $2 RETURNING *',
+            [name, postId, description, date ]);
 
         if (!updatedPost) {
             return res.status(404).json({ error: 'Post not updated.' });
